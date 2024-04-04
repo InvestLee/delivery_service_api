@@ -15,8 +15,11 @@ import java.io.IOException;
 public class LoggerFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+
         var req = new ContentCachingRequestWrapper((HttpServletRequest) request);
         var res = new ContentCachingResponseWrapper((HttpServletResponse) response);
+
+        log.info("INIT URI : {}", req.getRequestURI());
 
         chain.doFilter(req, res);
 
