@@ -13,7 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import java.util.List;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity  // security  활성화
 public class SecurityConfig {
 
     private List<String> SWAGGER = List.of(
@@ -57,4 +57,5 @@ public class SecurityConfig {
         // hash 로 암호화
         return new BCryptPasswordEncoder();
     }
+
 }

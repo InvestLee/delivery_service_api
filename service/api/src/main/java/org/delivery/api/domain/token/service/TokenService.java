@@ -33,7 +33,7 @@ public class TokenService {
 
     public Long validationToken(String token){
         var map = tokenHelperIfs.validationTokenWithThrow(token);
-        var userId = map.get("userID");
+        var userId = map.get("userId");
         Objects.requireNonNull(userId, ()->{throw new ApiException(ErrorCode.NULL_POINT);});
         return Long.parseLong(userId.toString());
     }

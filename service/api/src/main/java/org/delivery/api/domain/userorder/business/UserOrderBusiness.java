@@ -11,6 +11,7 @@ import org.delivery.api.domain.userorder.controller.model.UserOrderDetailRespons
 import org.delivery.api.domain.userorder.controller.model.UserOrderRequest;
 import org.delivery.api.domain.userorder.controller.model.UserOrderResponse;
 import org.delivery.api.domain.userorder.converter.UserOrderConverter;
+import org.delivery.api.domain.userorder.producer.UserOrderProducer;
 import org.delivery.api.domain.userorder.service.UserOrderService;
 import org.delivery.api.domain.userordermenu.converter.UserOrderMenuConverter;
 import org.delivery.api.domain.userordermenu.service.UserOrderMenuService;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 public class UserOrderBusiness {
 
     private final UserOrderService userOrderService;
+
     private final UserOrderConverter userOrderConverter;
 
     private final StoreMenuService storeMenuService;
@@ -34,19 +36,20 @@ public class UserOrderBusiness {
     private final StoreService storeService;
     private final StoreConverter storeConverter;
 
+    private final UserOrderProducer userOrderProducer;
+
 
     // 1. 사용자 , 메뉴 id
     // 2. userOrder 생성
     // 3. userOrderMenu 생성
     // 4. 응답 생성
     public UserOrderResponse userOrder(User user, UserOrderRequest body) {
-
         var storeMenuEntityList = body.getStoreMenuIdList()
                 .stream()
                 .map(it -> storeMenuService.getStoreMenuWithThrow(it))
                 .collect(Collectors.toList());
 
-        var userOrderEntity = userOrderConverter.toEntity(user, storeMenuEntityList);
+        var userOrderEntity = userOrderConverter.toEntity(user, body.getStoreId(), storeMenuEntityList);
 
         // 주문
         var newUserOrderEntity = userOrderService.order(userOrderEntity);
@@ -59,10 +62,14 @@ public class UserOrderBusiness {
                     return userOrderMenuEntity;
                 })
                 .collect(Collectors.toList());
+
         // 주문내역 기록 남기기
         userOrderMenuEntityList.forEach(it ->{
             userOrderMenuService.order(it);
         });
+
+        // 비동기로 가맹점에 주문 알리기
+        userOrderProducer.sendOrder(newUserOrderEntity);
 
         // response
         return userOrderConverter.toResponse(newUserOrderEntity);
@@ -78,12 +85,12 @@ public class UserOrderBusiness {
             var userOrderMenuEntityList = userOrderMenuService.getUserOrderMenu(it.getId());
             var storeMenuEntityList = userOrderMenuEntityList.stream()
                     .map(userOrderMenuEntity ->{
-                         var storeMenuEntity = storeMenuService.getStoreMenuWithThrow(userOrderMenuEntity.getStoreMenuId());
+                        var storeMenuEntity = storeMenuService.getStoreMenuWithThrow(userOrderMenuEntity.getStoreMenuId());
                         return storeMenuEntity;
                     })
                     .collect(Collectors.toList());
 
-            // 사용자가 주문한 스토어 TODO 리팩토링 필요(NullPoint)
+            // 사용자가 주문한 스토어 TODO 리팩토링 필요
             var storeEntity = storeService.getStoreWithThrow(storeMenuEntityList.stream().findFirst().get().getStoreId());
 
             return UserOrderDetailResponse.builder()

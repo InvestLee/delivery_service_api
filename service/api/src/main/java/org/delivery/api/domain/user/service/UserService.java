@@ -54,6 +54,6 @@ public class UserService {
         return userRepository.findFirstByIdAndStatusOrderByIdDesc(
                 userId,
                 UserStatus.REGISTERED
-        ) .orElseThrow(()-> new ApiException(UserErrorCode.USER_NOT_FOUND));
+        ).orElseThrow(()-> new ApiException(UserErrorCode.USER_NOT_FOUND));
     }
 }

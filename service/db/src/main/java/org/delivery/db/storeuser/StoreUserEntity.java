@@ -38,7 +38,6 @@ public class StoreUserEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private StoreUserRole role;
 
-
     private LocalDateTime registeredAt;
 
     private LocalDateTime unregisteredAt;
