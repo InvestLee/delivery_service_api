@@ -10,7 +10,7 @@
 
 
 [서비스 구조]
-![image](https://github.com/InvestLee/delivery_service_api/assets/101415950/d10eb937-dcc2-44b7-8231-1c06ee762df9)
+![image](https://github.com/InvestLee/delivery_service_api/assets/101415950/b8d8f560-4d6b-4371-add2-bbb186151323)
 
 
 [DB]
